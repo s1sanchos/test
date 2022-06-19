@@ -1,0 +1,66 @@
+---
+- hosts: all
+become: yes
+tasks:
+
+- name: update packages in deb
+become: true
+apt:
+upgrade: yes
+update_cache: yes
+cache_valid_time: 86400
+
+- name: install other soft
+apt:  
+name:  "{{ item }}" 
+state: latest
+update_cache: yes
+with_items:
+-   vim
+-	wget
+-	htop
+-	tmux
+
+- name: Install PHP libraries
+apt: pkg={{ item }} state=latest
+with_items:
+- php5.6-curl
+- php5.6-fpm
+- php5.6-gd
+- php5.6-mbstring
+- php5.6-mcrypt
+- php5.6-mysql
+- php5.6-xml
+notify:
+- Restart PHP-FPM
+
+- name: install nginx web server
+apt: 
+name=nginx 
+update_cache=yes
+state=latest 
+notify:
+- start nginx        
+
+- name: install apache2
+apt: 
+name=apache2 
+update_cache=yes
+state=present
+
+
+- name: enabled mod_rewrite
+apache2_module: name=rewrite state=present
+notify:
+- restart apache2
+
+- name: apache2 listen on port 8888
+lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen 80" line="Listen 8888" state=present
+notify:
+- restart apache2
+
+- name: apache2 virtualhost on port 8888
+lineinfile: dest=/etc/apache2/sites-available/000-default.conf regexp="^<VirtualHost \*:80>" line="<VirtualHost *:8888>" state=present
+notify:
+- restart apache2
+
