@@ -1,0 +1,25 @@
+- hosts: all
+  become: yes
+  tasks:
+   
+    - name: Installation PHP 7.2
+      apt: name=php7.2 state=present
+
+    - name: install lamp stack
+      apt:
+        pkg:
+          - php7.2-mysql
+          - php7.2-curl
+          - php7.2-json
+          - php7.2-cgi
+          - php7.2-xsl
+          - php7.2-cgi
+          - php7.2-gd
+          - php7.2-mbstring
+          - php7.2-zip
+          - php7.2-xmlrpc
+          - php7.2-soap
+          - php7.2-intl
+          - libapache2-mod-php
+        state: present
+        update_cache: yes 
